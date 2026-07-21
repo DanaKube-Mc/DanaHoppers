@@ -1,0 +1,46 @@
+id: "collecteur_elargi"
+name: "<gradient:#4facfe:#00f2fe><bold>Entonnoir Élargi</bold></gradient>"
+base_lore:
+  - "<gray>Aspire les items environnants dans un rayon cubique.</gray>"
+  - "<gray>Améliorez-le pour étendre sa portée.</gray>"
+
+tiers:
+  1:
+    display_name: "<gradient:#4facfe:#00f2fe>Entonnoir Élargi - Niv. 1</gradient>"
+    material: "HOPPER"
+    custom_model_data: 1001
+    suction_type: "CUBE"
+    radius_x: 3
+    radius_y: 3
+    radius_z: 3
+    interval_seconds: 5.0
+    max_linking_distance: 0
+    upgrade_cost_money: 1000.0
+    next_hopper_id: "collecteur_elargi"
+    next_tier: 2
+  2:
+    display_name: "<gradient:#4facfe:#00f2fe>Entonnoir Élargi - Niv. 2</gradient>"
+    material: "HOPPER"
+    custom_model_data: 1002
+    suction_type: "CUBE"
+    radius_x: 5
+    radius_y: 5
+    radius_z: 5
+    interval_seconds: 3.0
+    max_linking_distance: 0
+    upgrade_cost_money: 2500.0
+    next_hopper_id: "collecteur_elargi"
+    next_tier: 3
+  3:
+    display_name: "<gradient:#4facfe:#00f2fe>Entonnoir Élargi - Niv. 3</gradient>"
+    material: "HOPPER"
+    custom_model_data: 1003
+    suction_type: "CUBE"
+    radius_x: 7
+    radius_y: 7
+    radius_z: 7
+    interval_seconds: 1.0
+    max_linking_distance: 0
+    upgrade_cost_money: 0.0
+    next_hopper_id: ""
+    next_tier: 0

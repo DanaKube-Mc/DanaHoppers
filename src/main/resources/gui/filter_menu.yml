@@ -1,0 +1,31 @@
+title: "<gradient:#30cfd0:#330867><bold>Filtre du Hopper</bold></gradient>"
+size: 27
+
+filler:
+  material: "GRAY_STAINED_GLASS_PANE"
+  name: " "
+
+mode_button:
+  slot: 0
+  whitelist:
+    material: "WHITE_WOOL"
+    name: "<green><bold>Mode: Liste Blanche</bold></green>"
+    lore:
+      - "<gray>Seuls les objets listés seront aspirés.</gray>"
+      - "<yellow>► Clic pour passer en Liste Noire</yellow>"
+  blacklist:
+    material: "BLACK_WOOL"
+    name: "<red><bold>Mode: Liste Noire</bold></red>"
+    lore:
+      - "<gray>Les objets listés ne seront PAS aspirés.</gray>"
+      - "<yellow>► Clic pour passer en Liste Blanche</yellow>"
+
+clear_button:
+  slot: 8
+  material: "BARRIER"
+  name: "<red><bold>Vider le Filtre</bold></red>"
+  lore:
+    - "<gray>Retire tous les items du filtre.</gray>"
+    - "<red>► Clic pour réinitialiser</red>"
+
+filter_slots: [10, 11, 12, 13, 14, 15, 16]

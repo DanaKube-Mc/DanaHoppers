@@ -1,0 +1,41 @@
+# =====================================================================
+#                 DanaHoppers - Configuration Générale
+# =====================================================================
+
+# Langue du plugin (correspond à lang/<language>.yml)
+language: "fr_FR"
+
+# Configuration de la base de données
+database:
+  type: "SQLITE" # Options: SQLITE, MYSQL
+  sqlite:
+    filename: "danahoppers.db"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "danahoppers"
+    username: "root"
+    password: ""
+    pool:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+# Limites de placement d'entonnoirs
+limits:
+  max-hoppers-per-player: 10
+  max-hoppers-per-chunk: 3
+
+# Options de fonctionnement
+options:
+  enable-particles: true
+  enable-sounds: true
+  check-update: true
+  suction-task-period-ticks: 20
+
+# Intégrations avec d'autres plugins
+integrations:
+  vault: true
+  placeholderapi: true
+  griefprevention: false
+  towny: false

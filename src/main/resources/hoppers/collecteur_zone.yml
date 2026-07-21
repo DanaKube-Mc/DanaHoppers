@@ -1,0 +1,46 @@
+id: "collecteur_zone"
+name: "<gradient:#ff0844:#ffb199><bold>Entonnoir Zone</bold></gradient>"
+base_lore:
+  - "<gray>Aspire les items lâchés dans l'ensemble du chunk.</gray>"
+  - "<gray>Plus le niveau est élevé, plus le transfert est rapide.</gray>"
+
+tiers:
+  1:
+    display_name: "<gradient:#ff0844:#ffb199>Entonnoir Zone - Niv. 1</gradient>"
+    material: "HOPPER"
+    custom_model_data: 2001
+    suction_type: "CHUNK"
+    radius_x: 1
+    radius_y: 1
+    radius_z: 1
+    interval_seconds: 5.0
+    max_linking_distance: 0
+    upgrade_cost_money: 2000.0
+    next_hopper_id: "collecteur_zone"
+    next_tier: 2
+  2:
+    display_name: "<gradient:#ff0844:#ffb199>Entonnoir Zone - Niv. 2</gradient>"
+    material: "HOPPER"
+    custom_model_data: 2002
+    suction_type: "CHUNK"
+    radius_x: 1
+    radius_y: 1
+    radius_z: 1
+    interval_seconds: 3.0
+    max_linking_distance: 0
+    upgrade_cost_money: 5000.0
+    next_hopper_id: "collecteur_zone"
+    next_tier: 3
+  3:
+    display_name: "<gradient:#ff0844:#ffb199>Entonnoir Zone - Niv. 3</gradient>"
+    material: "HOPPER"
+    custom_model_data: 2003
+    suction_type: "CHUNK"
+    radius_x: 1
+    radius_y: 1
+    radius_z: 1
+    interval_seconds: 1.0
+    max_linking_distance: 0
+    upgrade_cost_money: 0.0
+    next_hopper_id: ""
+    next_tier: 0
