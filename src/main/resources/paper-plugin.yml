@@ -1,0 +1,6 @@
+name: DanaHoppers
+version: '${project.version}'
+main: fr.danakube.danahoppers.DanaHoppersPlugin
+api-version: '1.21'
+description: Plugin Minecraft d'entonnoirs (hoppers) personnalisés pour le serveur DanaKube.
+author: DanaKube Team
