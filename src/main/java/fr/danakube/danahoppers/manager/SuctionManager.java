@@ -3,10 +3,12 @@ package fr.danakube.danahoppers.manager;
 import fr.danakube.danahoppers.config.ConfigManager;
 import fr.danakube.danahoppers.config.HopperTierConfig;
 import fr.danakube.danahoppers.config.HopperTypeConfig;
+import fr.danakube.danahoppers.hook.AdvancedChestHook;
 import fr.danakube.danahoppers.model.CustomHopper;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Entity;
@@ -126,9 +128,9 @@ public class SuctionManager {
             return;
         }
 
-        // 2. Déterminer l'inventaire cible (conteneur lié ou entonnoir lui-même)
-        Inventory targetInventory = getTargetInventory(hopper);
-        if (targetInventory == null) {
+        // 2. Déterminer les inventaires cibles (support multi-pages/AdvancedChests)
+        List<Inventory> targetInventories = getTargetInventories(hopper);
+        if (targetInventories.isEmpty()) {
             return;
         }
 
@@ -149,9 +151,19 @@ public class SuctionManager {
                 continue;
             }
 
-            // Transfert vers l'inventaire cible
+            // Transfert vers les inventaires cibles (page par page si plein)
             int originalAmount = stack.getAmount();
-            HashMap<Integer, ItemStack> remaining = targetInventory.addItem(stack);
+            ItemStack currentStack = stack;
+            HashMap<Integer, ItemStack> remaining = new HashMap<>();
+
+            for (Inventory targetInventory : targetInventories) {
+                remaining = targetInventory.addItem(currentStack);
+                if (remaining.isEmpty()) {
+                    break; // Complètement inséré dans cet inventaire/page
+                }
+                // Si la page actuelle est pleine, on continue le surplus sur la page suivante
+                currentStack = remaining.get(0);
+            }
 
             int transferredAmount = originalAmount;
             if (!remaining.isEmpty()) {
@@ -167,7 +179,7 @@ public class SuctionManager {
                 transferredAny = true;
             }
 
-            // Si l'inventaire est plein, on arrête la boucle d'aspiration
+            // Si tous les inventaires/pages sont pleins, on arrête l'aspiration
             if (!remaining.isEmpty()) {
                 break;
             }
@@ -211,32 +223,52 @@ public class SuctionManager {
     }
 
     /**
-     * Récupère l'inventaire cible pour le transfert (verifie que la chunk cible est bien chargée).
+     * Récupère les inventaires cibles pour le transfert (supporte les coffres multi-pages comme AdvancedChests).
      */
-    private Inventory getTargetInventory(CustomHopper hopper) {
+    private List<Inventory> getTargetInventories(CustomHopper hopper) {
+        List<Inventory> list = new ArrayList<>();
         Location targetLoc = hopper.getLinkedLocation();
 
         if (targetLoc != null) {
-            // Conteneur lié distant : VÉRIFICATION que la chunk cible est chargée pour éviter les lag spikes
             if (targetLoc.isWorldLoaded() && targetLoc.getChunk().isLoaded()) {
-                BlockState state = targetLoc.getBlock().getState();
+                // 1. Détection prioritaire AdvancedChests (Toutes les pages)
+                List<Inventory> advInvs = AdvancedChestHook.getAllAdvancedChestInventories(targetLoc);
+                if (!advInvs.isEmpty()) {
+                    return advInvs;
+                }
+
+                // 2. Inventaire Bukkit Standard (Vanilla/Paper)
+                Block block = targetLoc.getBlock();
+                BlockState state = block.getState(false);
                 if (state instanceof InventoryHolder holder) {
-                    return holder.getInventory();
+                    list.add(holder.getInventory());
+                    return list;
+                }
+                
+                state = block.getState();
+                if (state instanceof InventoryHolder holder) {
+                    list.add(holder.getInventory());
                 } else if (state instanceof Container container) {
-                    return container.getInventory();
+                    list.add(container.getInventory());
                 }
             }
-            return null; // Chunk non chargée ou conteneur non valide
         } else {
             // Conteneur local (le bloc d'entonnoir lui-même)
             Location loc = hopper.getLocation();
             if (loc != null && loc.isWorldLoaded() && loc.getChunk().isLoaded()) {
-                BlockState state = loc.getBlock().getState();
+                Block block = loc.getBlock();
+                BlockState state = block.getState(false);
                 if (state instanceof InventoryHolder holder) {
-                    return holder.getInventory();
+                    list.add(holder.getInventory());
+                    return list;
+                }
+                
+                state = block.getState();
+                if (state instanceof InventoryHolder holder) {
+                    list.add(holder.getInventory());
                 }
             }
-            return null;
         }
+        return list;
     }
 }

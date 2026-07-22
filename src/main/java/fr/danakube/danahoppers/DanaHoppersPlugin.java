@@ -5,6 +5,7 @@ import fr.danakube.danahoppers.config.ConfigManager;
 import fr.danakube.danahoppers.gui.HopperFilterMenu;
 import fr.danakube.danahoppers.gui.HopperMainMenu;
 import fr.danakube.danahoppers.gui.InventoryBuilder;
+import fr.danakube.danahoppers.hook.AdvancedChestHook;
 import fr.danakube.danahoppers.listener.HopperBlockListener;
 import fr.danakube.danahoppers.listener.InventoryListener;
 import fr.danakube.danahoppers.listener.PlayerInteractListener;
@@ -57,6 +58,13 @@ public final class DanaHoppersPlugin extends JavaPlugin {
             } else {
                 getLogger().info("Liaison réussie avec Vault pour le système d'économie !");
             }
+        }
+
+        // Détection AdvancedChests
+        if (AdvancedChestHook.isAdvancedChestsActive()) {
+            getLogger().info("[Hook] Plugin AdvancedChests détecté et activé !");
+        } else {
+            getLogger().info("[Hook] AdvancedChests non détecté sur ce serveur.");
         }
 
         // 2. Base de données & Stockage
