@@ -1,0 +1,78 @@
+# =====================================================================
+#                 DanaHoppers - Configuration Générale
+# =====================================================================
+
+# Langue du plugin (correspond à lang/<language>.yml)
+language: "fr_FR"
+
+# Mondes dans lesquels l'utilisation et la pose de hoppers personnalisés sont désactivées
+disabled-worlds:
+  - "world_nether"
+  - "world_the_end"
+
+# Configuration de la base de données
+database:
+  type: "SQLITE" # Options: SQLITE, MYSQL
+  sqlite:
+    filename: "danahoppers.db"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "danahoppers"
+    username: "root"
+    password: ""
+    pool:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+# Limites de placement d'entonnoirs
+limits:
+  max-hoppers-per-chunk: 3
+  # Si l'intégration SuperiorSkyblock2 est active :
+  # - true : La limite de hoppers est partagée par l'île (se base sur les permissions du leader).
+  # - false : La limite de hoppers reste individuelle par joueur (se base sur les permissions du joueur).
+  use-island-limits: true
+  # Détermine le nombre maximal d'entonnoirs autorisés selon les permissions du joueur (ou du chef d'île).
+  # Le plugin prendra la valeur la plus élevée parmi les permissions possédées.
+  # Permission de bypass total : danahoppers.admin.bypasslimit
+  limits-by-permission:
+    - "danahoppers.place.default:3"
+    - "danahoppers.place.level1:5"
+    - "danahoppers.place.level2:10"
+    - "danahoppers.place.level3:20"
+
+# Options de fonctionnement
+options:
+  enable-particles: true
+  enable-sounds: true
+  check-update: true
+  suction-task-period-ticks: 20
+  # Délai de sauvegarde automatique en base de données (en minutes)
+  # Met à jour les statistiques et l'état des hoppers périodiquement.
+  # Définir à -1 pour désactiver la sauvegarde périodique (sauvegarde uniquement à la fermeture).
+  database-autosave-minutes: 5
+
+# Intégrations avec d'autres plugins
+integrations:
+  vault: true
+  placeholderapi: true
+  superiorskyblock: true
+  griefprevention: false
+  towny: false
+
+# Configuration des hologrammes (TextDisplay)
+hologram:
+  # Hauteur au-dessus de l'entonnoir (par rapport au centre du bloc)
+  line-gap: 1.25
+  # Pivot de l'hologramme face aux joueurs : FIXED, VERTICAL, HORIZONTAL, CENTER
+  billboard: VERTICAL
+  # Opacité du texte (0 à 255, -1 pour 255 opaque)
+  text-opacity: -1
+  # Rendre le texte visible à travers les blocs
+  see-through: false
+  # Activer l'ombre sur le texte
+  shadow: true
+  # Couleur d'arrière-plan au format A,R,G,B (Alpha, Rouge, Vert, Bleu). 0,0,0,0 pour transparent.
+  background-color: "120,0,0,0"
+

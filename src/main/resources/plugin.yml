@@ -1,0 +1,18 @@
+name: DanaHoppers
+version: '${project.version}'
+main: fr.danakube.danahoppers.DanaHoppersPlugin
+api-version: '1.21'
+description: Plugin Minecraft d'entonnoirs (hoppers) personnalisés pour le serveur DanaKube.
+author: DanaKube Team
+
+commands:
+  danahopper:
+    description: Commande principale pour la gestion des CustomHoppers
+    aliases:
+      - danahoppers
+    permission: danahoppers.use
+
+softdepend:
+  - Vault
+  - SuperiorSkyblock2
+

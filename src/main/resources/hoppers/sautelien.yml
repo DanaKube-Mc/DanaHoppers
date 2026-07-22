@@ -1,0 +1,33 @@
+id: "sautelien"
+name: "<gradient:#f6d365:#fda085><bold>SauteLien Distant</bold></gradient>"
+base_lore:
+  - "<gray>Téléporte et transfère les items directement vers un coffre lié.</gray>"
+  - "<gray>La portée maximum augmente avec les niveaux.</gray>"
+
+tiers:
+  1:
+    display_name: "<gradient:#f6d365:#fda085>SauteLien - Niv. 1</gradient>"
+    material: "HOPPER"
+    custom_model_data: 3001
+    suction_type: "TELEPORTATION"
+    radius_x: 0
+    radius_y: 0
+    radius_z: 0
+    interval_seconds: 1.0
+    max_linking_distance: 60
+    upgrade_cost_money: 10000.0
+    next_hopper_id: "sautelien"
+    next_tier: 2
+  2:
+    display_name: "<gradient:#f6d365:#fda085>SauteLien - Niv. 2</gradient>"
+    material: "HOPPER"
+    custom_model_data: 3002
+    suction_type: "TELEPORTATION"
+    radius_x: 0
+    radius_y: 0
+    radius_z: 0
+    interval_seconds: 1.0
+    max_linking_distance: 150
+    upgrade_cost_money: 0.0
+    next_hopper_id: ""
+    next_tier: 0
