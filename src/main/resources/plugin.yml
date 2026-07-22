@@ -11,3 +11,8 @@ commands:
     aliases:
       - danahoppers
     permission: danahoppers.use
+
+softdepend:
+  - Vault
+  - SuperiorSkyblock2
+

@@ -13,6 +13,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -61,10 +62,16 @@ public final class HopperItemUtil {
             placeholders.put("tier", String.valueOf(tier));
 
             String displayName = tierConfig != null ? tierConfig.displayName() : "<yellow>Custom Hopper (Niv. " + tier + ")</yellow>";
+            if (!displayName.startsWith("<!italic>") && !displayName.startsWith("<italic:false>")) {
+                displayName = "<!italic>" + displayName;
+            }
             meta.displayName(ColorUtil.parse(displayName, placeholders));
 
             if (typeConfig != null && !typeConfig.baseLore().isEmpty()) {
-                meta.lore(ColorUtil.parseList(typeConfig.baseLore(), placeholders));
+                List<String> nonItalicLore = typeConfig.baseLore().stream()
+                        .map(line -> (line.startsWith("<!italic>") || line.startsWith("<italic:false>")) ? line : "<!italic>" + line)
+                        .toList();
+                meta.lore(ColorUtil.parseList(nonItalicLore, placeholders));
             }
 
             if (tierConfig != null && tierConfig.customModelData() > 0) {

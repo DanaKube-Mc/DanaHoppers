@@ -35,7 +35,7 @@ class ConfigLoaderTest {
         String plainTextSimple = PlainTextComponentSerializer.plainText().serialize(parsedSimple);
         assertEquals("Test Message", plainTextSimple);
 
-        Component parsedPlaceholder = ColorUtil.parse("<yellow>Bonjour <player> !</yellow>", Map.of("player", "Steve"));
+        Component parsedPlaceholder = ColorUtil.parse("<yellow>Bonjour %player% !</yellow>", Map.of("player", "Steve"));
         assertNotNull(parsedPlaceholder);
         String plainTextPlaceholder = PlainTextComponentSerializer.plainText().serialize(parsedPlaceholder);
         assertEquals("Bonjour Steve !", plainTextPlaceholder);
@@ -57,7 +57,9 @@ class ConfigLoaderTest {
         assertEquals("fr_FR", configManager.getConfig().getString("language"));
         assertEquals("SQLITE", configManager.getConfig().getString("database.type"));
         assertEquals("danahoppers.db", configManager.getConfig().getString("database.sqlite.filename"));
-        assertEquals(10, configManager.getConfig().getInt("limits.max-hoppers-per-player"));
+        List<String> limits = configManager.getConfig().getStringList("limits.limits-by-permission");
+        assertEquals(4, limits.size());
+        assertTrue(limits.contains("danahoppers.place.default:3"));
         assertEquals(3, configManager.getConfig().getInt("limits.max-hoppers-per-chunk"));
         assertTrue(configManager.getConfig().getBoolean("options.enable-particles"));
     }

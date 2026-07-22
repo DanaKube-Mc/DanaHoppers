@@ -13,8 +13,10 @@ import fr.danakube.danahoppers.manager.HopperManager;
 import fr.danakube.danahoppers.manager.SuctionManager;
 import fr.danakube.danahoppers.storage.DatabaseManager;
 import fr.danakube.danahoppers.storage.HopperRepository;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class DanaHoppersPlugin extends JavaPlugin {
@@ -25,12 +27,34 @@ public final class DanaHoppersPlugin extends JavaPlugin {
     private HopperManager hopperManager;
     private HologramManager hologramManager;
     private SuctionManager suctionManager;
+    private Economy economy;
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        this.economy = rsp.getProvider();
+        return this.economy != null;
+    }
 
     @Override
     public void onEnable() {
         // 1. Configuration
         this.configManager = new ConfigManager(this);
         this.configManager.loadAll();
+
+        // Initialisation de Vault
+        if (configManager.getConfig().getBoolean("integrations.vault", true)) {
+            if (!setupEconomy()) {
+                getLogger().warning("Intégration Vault activée mais aucun plugin d'économie compatible trouvé ! Le système d'économie sera désactivé.");
+            } else {
+                getLogger().info("Liaison réussie avec Vault pour le système d'économie !");
+            }
+        }
 
         // 2. Base de données & Stockage
         this.databaseManager = new DatabaseManager(this);
@@ -51,7 +75,7 @@ public final class DanaHoppersPlugin extends JavaPlugin {
 
         // 4. GUI & Sub-systèmes
         InventoryBuilder inventoryBuilder = new InventoryBuilder(configManager);
-        HopperMainMenu mainMenu = new HopperMainMenu(inventoryBuilder, hopperManager, configManager, this);
+        HopperMainMenu mainMenu = new HopperMainMenu(inventoryBuilder, hopperManager, configManager, hologramManager, this);
         HopperFilterMenu filterMenu = new HopperFilterMenu(inventoryBuilder, hopperManager, configManager, this);
 
         // 5. Événements (Listeners)
@@ -114,5 +138,9 @@ public final class DanaHoppersPlugin extends JavaPlugin {
 
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
+    }
+
+    public Economy getEconomy() {
+        return economy;
     }
 }

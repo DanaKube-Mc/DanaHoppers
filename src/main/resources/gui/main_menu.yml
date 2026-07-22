@@ -11,10 +11,11 @@ items:
     material: "BOOK"
     name: "<yellow><bold>Informations</bold></yellow>"
     lore:
-      - "<gray>Type: <white><type_name></white></gray>"
-      - "<gray>Niveau: <green><tier></green></gray>"
-      - "<gray>Rayon: <aqua><radius></aqua></gray>"
-      - "<gray>Propriétaire: <gold><owner></gold></gray>"
+      - "<gray>Type: <white>%type_name%</white></gray>"
+      - "<gray>Niveau: <green>%tier%</green></gray>"
+      - "<gray>Rayon: <aqua>%radius%</aqua></gray>"
+      - "<gray>Intervalle: <yellow>%interval%s</yellow></gray>"
+      - "<gray>Propriétaire: <gold>%owner%</gold></gray>"
   11:
     id: "filter"
     material: "HOPPER"
@@ -29,9 +30,9 @@ items:
     material: "NETHER_STAR"
     name: "<green><bold>Améliorer le Hopper</bold></green>"
     lore:
-      - "<gray>Niveau actuel: <yellow><current_tier></yellow></gray>"
-      - "<gray>Prochain niveau: <green><next_tier></green></gray>"
-      - "<gray>Coût: <gold><cost>$</gold></gray>"
+      - "<gray>Niveau actuel: <yellow>%current_tier%</yellow></gray>"
+      - "<gray>Prochain niveau: <green>%next_tier%</green></gray>"
+      - "<gray>Coût: <gold>%cost%$</gold></gray>"
       - ""
       - "<yellow>► Clic pour améliorer</yellow>"
   15:
@@ -40,13 +41,15 @@ items:
     name: "<purple><bold>Lier un Conteneur</bold></purple>"
     lore:
       - "<gray>Associez cet entonnoir à un coffre distant.</gray>"
-      - "<gray>Distance max: <aqua><max_distance> blocs</aqua></gray>"
+      - "<gray>Distance max: <aqua>%max_distance% blocs</aqua></gray>"
       - ""
       - "<yellow>► Clic pour passer en mode liaison</yellow>"
   16:
     id: "stats"
     material: "CHEST"
-    name: "<aqua><bold>Statistiques</bold></aqua>"
+    name: "<aqua><bold>Statistiques & Hologramme</bold></aqua>"
     lore:
-      - "<gray>Items aspirés: <green><items_transferred></green></gray>"
-      - "<gray>Statut: <green>Actif</green></gray>"
+      - "<gray>Items aspirés: <green>%items_transferred%</green></gray>"
+      - "<gray>Hologramme: %hologram_status%</gray>"
+      - ""
+      - "<yellow>► Clic pour Activer/Désactiver</yellow>"

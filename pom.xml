@@ -24,9 +24,33 @@
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+        <!-- JitPack Repository for Vault -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <!-- BG-Software Repository for SuperiorSkyblock2 -->
+        <repository>
+            <id>bg-repo</id>
+            <url>https://repo.bg-software.com/repository/api/</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <!-- Vault API -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- SuperiorSkyblock2 API -->
+        <dependency>
+            <groupId>com.bgsoftware</groupId>
+            <artifactId>SuperiorSkyblockAPI</artifactId>
+            <version>2026.1</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- Paper API -->
         <dependency>
             <groupId>io.papermc.paper</groupId>

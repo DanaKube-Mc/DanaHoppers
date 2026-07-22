@@ -8,6 +8,7 @@ import fr.danakube.danahoppers.model.FilterMode;
 import fr.danakube.danahoppers.model.HopperFilter;
 import fr.danakube.danahoppers.util.HopperItemUtil;
 import fr.danakube.danahoppers.util.PDCUtil;
+import fr.danakube.danahoppers.util.SkyblockUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -30,6 +31,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+
+import com.bgsoftware.superiorskyblock.api.island.Island;
+import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 
 import java.util.List;
 import java.util.Map;
@@ -66,6 +70,46 @@ public class HopperBlockListener implements Listener {
 
         Player player = event.getPlayer();
         Block block = event.getBlockPlaced();
+        Location blockLoc = block.getLocation();
+
+        // 0. Vérification du monde désactivé
+        List<String> disabledWorlds = configManager.getConfig().getStringList("disabled-worlds");
+        if (disabledWorlds != null && disabledWorlds.contains(blockLoc.getWorld().getName())) {
+            player.sendMessage(configManager.getRawMessage("disabled_world"));
+            event.setCancelled(true);
+            return;
+        }
+
+        // 1. Intégration SuperiorSkyblock2 : Vérification du placement
+        boolean useSkyblock = configManager.getConfig().getBoolean("integrations.superiorskyblock", true);
+        Island island = null;
+
+        if (useSkyblock && SkyblockUtil.isSkyblockActive()) {
+            island = SkyblockUtil.getIslandAt(blockLoc);
+            if (island == null) {
+                player.sendMessage(configManager.getRawMessage("not_on_island"));
+                event.setCancelled(true);
+                return;
+            }
+            // Vérifier si membre de l'île
+            if (!SkyblockUtil.isIslandMember(player, island)) {
+                player.sendMessage(configManager.getRawMessage("not_island_member"));
+                event.setCancelled(true);
+                return;
+            }
+        }
+
+        // 2. Vérification de la limite de placement
+        if (!player.hasPermission("danahoppers.admin.bypasslimit") && !player.hasPermission("danahoppers.admin")) {
+            int maxAllowed = getLimitAllowed(player, island);
+            int currentCount = countHoppersPlaced(player.getUniqueId(), island);
+
+            if (currentCount >= maxAllowed) {
+                player.sendMessage(configManager.getMessage("hopper_limit_reached", Map.of("limit", String.valueOf(maxAllowed))));
+                event.setCancelled(true);
+                return;
+            }
+        }
 
         String typeId = HopperItemUtil.getTypeId(itemHand, plugin).orElse("collecteur_elargi");
         int tier = HopperItemUtil.getTier(itemHand, plugin);
@@ -93,7 +137,7 @@ public class HopperBlockListener implements Listener {
         }
 
         UUID hopperUuid = UUID.randomUUID();
-        CustomHopper hopper = new CustomHopper(hopperUuid, player.getUniqueId(), block.getLocation(), typeId, tier);
+        CustomHopper hopper = new CustomHopper(hopperUuid, player.getUniqueId(), blockLoc, typeId, tier);
         hopper.setFilter(filter);
 
         // Écriture dans le PDC du TileState
@@ -113,6 +157,74 @@ public class HopperBlockListener implements Listener {
     }
 
     /**
+     * Calcule la limite de hoppers autorisés pour un joueur ou son île.
+     */
+    private int getLimitAllowed(Player player, Island island) {
+        Player targetPlayer = player;
+        
+        boolean useIslandLimits = configManager.getConfig().getBoolean("limits.use-island-limits", true);
+
+        // Si skyblock est actif et qu'on utilise les limites par île, la limite se base sur les permissions du leader
+        if (useIslandLimits && island != null) {
+            SuperiorPlayer superiorOwner = island.getOwner();
+            if (superiorOwner != null) {
+                Player onlineOwner = superiorOwner.asPlayer();
+                if (onlineOwner != null) {
+                    targetPlayer = onlineOwner;
+                }
+            }
+        }
+
+        if (targetPlayer.hasPermission("danahoppers.admin.bypasslimit") || targetPlayer.hasPermission("danahoppers.admin")) {
+            return Integer.MAX_VALUE;
+        }
+
+        int max = 0;
+        List<String> limitsList = configManager.getConfig().getStringList("limits.limits-by-permission");
+        for (String entry : limitsList) {
+            String[] parts = entry.split(":");
+            if (parts.length == 2) {
+                String perm = parts[0].trim();
+                try {
+                    int limitVal = Integer.parseInt(parts[1].trim());
+                    if (targetPlayer.hasPermission(perm)) {
+                        if (limitVal > max) {
+                            max = limitVal;
+                        }
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        
+        // Limite par défaut
+        return max > 0 ? max : 3;
+    }
+
+    /**
+     * Compte le nombre de hoppers déjà placés par un joueur ou sur une île.
+     */
+    private int countHoppersPlaced(UUID playerUuid, Island island) {
+        int count = 0;
+        boolean useIslandLimits = configManager.getConfig().getBoolean("limits.use-island-limits", true);
+
+        for (CustomHopper h : hopperManager.getAllHoppers()) {
+            if (useIslandLimits && island != null) {
+                // Mode île : voir si le hopper est situé sur la même île
+                Island locIsland = SkyblockUtil.getIslandAt(h.getLocation());
+                if (locIsland != null && locIsland.getUniqueId().equals(island.getUniqueId())) {
+                    count++;
+                }
+            } else {
+                // Mode individuel : comparer l'UUID du propriétaire
+                if (playerUuid.equals(h.getOwnerUuid())) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
      * Destruction d'un CustomHopper par un joueur.
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -126,6 +238,17 @@ public class HopperBlockListener implements Listener {
         }
 
         Player player = event.getPlayer();
+
+        // Intégration SuperiorSkyblock2 : Interdire de casser si non membre
+        boolean useSkyblock = configManager.getConfig().getBoolean("integrations.superiorskyblock", true);
+        if (useSkyblock && SkyblockUtil.isSkyblockActive()) {
+            Island island = SkyblockUtil.getIslandAt(loc);
+            if (island != null && !SkyblockUtil.isIslandMember(player, island)) {
+                player.sendMessage(configManager.getRawMessage("not_island_member"));
+                event.setCancelled(true);
+                return;
+            }
+        }
 
         // Annuler les drops par défaut du bloc
         event.setDropItems(false);

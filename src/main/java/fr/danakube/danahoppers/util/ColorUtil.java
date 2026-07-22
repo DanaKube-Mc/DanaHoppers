@@ -2,8 +2,6 @@ package fr.danakube.danahoppers.util;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,11 +44,13 @@ public final class ColorUtil {
             return MINI_MESSAGE.deserialize(text);
         }
 
-        TagResolver[] resolvers = placeholders.entrySet().stream()
-                .map(entry -> Placeholder.parsed(entry.getKey(), entry.getValue() != null ? entry.getValue() : ""))
-                .toArray(TagResolver[]::new);
+        String processedText = text;
+        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+            String val = entry.getValue() != null ? entry.getValue() : "";
+            processedText = processedText.replace("%" + entry.getKey() + "%", val);
+        }
 
-        return MINI_MESSAGE.deserialize(text, TagResolver.resolver(resolvers));
+        return MINI_MESSAGE.deserialize(processedText);
     }
 
     /**

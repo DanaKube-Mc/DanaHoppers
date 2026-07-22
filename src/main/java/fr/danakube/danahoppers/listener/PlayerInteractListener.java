@@ -7,11 +7,12 @@ import fr.danakube.danahoppers.gui.HopperMainMenu;
 import fr.danakube.danahoppers.manager.HopperManager;
 import fr.danakube.danahoppers.model.CustomHopper;
 import fr.danakube.danahoppers.util.PDCUtil;
+import fr.danakube.danahoppers.util.SkyblockUtil;
+
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.Container;
 import org.bukkit.block.TileState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,6 +24,9 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
 
+import com.bgsoftware.superiorskyblock.api.island.Island;
+
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -93,7 +97,7 @@ public class PlayerInteractListener implements Listener {
 
             // Vérifier que le bloc cible est un conteneur valide (coffre, double coffre, entonnoir, etc.)
             BlockState state = block.getState();
-            if (!(state instanceof InventoryHolder) && !(state instanceof Container)) {
+            if (!(state instanceof InventoryHolder)) {
                 player.sendMessage(configManager.getRawMessage("link_failed_invalid"));
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
                 return;
@@ -133,6 +137,26 @@ public class PlayerInteractListener implements Listener {
         CustomHopper hopper = hopperManager.getHopper(block.getLocation());
         if (hopper != null) {
             event.setCancelled(true);
+
+            // Vérification du monde désactivé
+            List<String> disabledWorlds = configManager.getConfig().getStringList("disabled-worlds");
+            if (disabledWorlds != null && disabledWorlds.contains(block.getWorld().getName())) {
+                player.sendMessage(configManager.getRawMessage("disabled_world"));
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
+                return;
+            }
+
+            // Intégration SuperiorSkyblock2 : Interdire d'interagir si non membre
+            boolean useSkyblock = configManager.getConfig().getBoolean("integrations.superiorskyblock", true);
+            if (useSkyblock && SkyblockUtil.isSkyblockActive()) {
+                Island island = SkyblockUtil.getIslandAt(block.getLocation());
+                if (island != null && !SkyblockUtil.isIslandMember(player, island)) {
+                    player.sendMessage(configManager.getRawMessage("not_island_member"));
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
+                    return;
+                }
+            }
+
             hopperMainMenu.open(player, hopper);
         }
     }

@@ -3,7 +3,6 @@ package fr.danakube.danahoppers.manager;
 import fr.danakube.danahoppers.config.ConfigManager;
 import fr.danakube.danahoppers.config.HopperTypeConfig;
 import fr.danakube.danahoppers.model.CustomHopper;
-import fr.danakube.danahoppers.util.ColorUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -38,7 +37,8 @@ public class HologramManager {
      * Calcule l'emplacement de l'hologramme au-dessus du bloc d'entonnoir.
      */
     private Location getHologramLocation(Location blockLoc) {
-        return blockLoc.clone().add(0.5, 1.25, 0.5);
+        double gap = configManager.getConfig().getDouble("hologram.line-gap", 1.25);
+        return blockLoc.clone().add(0.5, gap, 0.5);
     }
 
     /**
@@ -60,9 +60,45 @@ public class HologramManager {
 
         Location holoLoc = getHologramLocation(loc);
         TextDisplay display = world.spawn(holoLoc, TextDisplay.class, entity -> {
-            entity.setBillboard(Display.Billboard.CENTER);
-            entity.setShadowed(true);
-            entity.setBackgroundColor(Color.fromARGB(120, 0, 0, 0));
+            // 1. Billboard
+            String billboardStr = configManager.getConfig().getString("hologram.billboard", "VERTICAL").toUpperCase();
+            Display.Billboard billboard;
+            try {
+                billboard = Display.Billboard.valueOf(billboardStr);
+            } catch (IllegalArgumentException e) {
+                billboard = Display.Billboard.VERTICAL;
+            }
+            entity.setBillboard(billboard);
+
+            // 2. Shadow
+            boolean shadow = configManager.getConfig().getBoolean("hologram.shadow", true);
+            entity.setShadowed(shadow);
+
+            // 3. SeeThrough
+            boolean seeThrough = configManager.getConfig().getBoolean("hologram.see-through", false);
+            entity.setSeeThrough(seeThrough);
+
+            // 4. TextOpacity
+            int opacity = configManager.getConfig().getInt("hologram.text-opacity", -1);
+            if (opacity != -1) {
+                entity.setTextOpacity((byte) opacity);
+            }
+
+            // 5. BackgroundColor
+            String bgStr = configManager.getConfig().getString("hologram.background-color", "120,0,0,0");
+            Color bgColor = Color.fromARGB(120, 0, 0, 0);
+            try {
+                String[] parts = bgStr.split(",");
+                if (parts.length == 4) {
+                    int a = Integer.parseInt(parts[0].trim());
+                    int r = Integer.parseInt(parts[1].trim());
+                    int g = Integer.parseInt(parts[2].trim());
+                    int b = Integer.parseInt(parts[3].trim());
+                    bgColor = Color.fromARGB(a, r, g, b);
+                }
+            } catch (Exception ignored) {}
+            entity.setBackgroundColor(bgColor);
+
             entity.getPersistentDataContainer().set(hologramKey, PersistentDataType.STRING, hopper.getHopperUuid().toString());
             entity.text(buildHologramText(hopper));
         });
@@ -142,9 +178,10 @@ public class HologramManager {
         HopperTypeConfig typeConfig = configManager.getHopperType(hopper.getTypeId());
         String typeName = typeConfig != null ? typeConfig.name() : hopper.getTypeId();
 
-        String rawText = "<gradient:#4facfe:#00f2fe><bold>" + typeName + "</bold></gradient> <gray>(Niv. " + hopper.getTier() + ")</gray>\n" +
-                "<gray>Items aspirés : <green>" + hopper.getItemsTransferred() + "</green></gray>";
-
-        return ColorUtil.parse(rawText);
+        return configManager.getRawMessage("hopper_hologram", java.util.Map.of(
+                "type", typeName,
+                "tier", String.valueOf(hopper.getTier()),
+                "items", String.valueOf(hopper.getItemsTransferred())
+        ));
     }
 }

@@ -217,6 +217,7 @@ public class InventoryBuilder {
         }
 
         String maxDistance = tierConfig != null ? String.valueOf(tierConfig.maxLinkingDistance()) : "0";
+        String interval = tierConfig != null ? String.valueOf(tierConfig.intervalSeconds()) : "5.0";
 
         map.put("type_name", typeName);
         map.put("type", typeName);
@@ -224,11 +225,13 @@ public class InventoryBuilder {
         map.put("current_tier", currentTier);
         map.put("next_tier", nextTier);
         map.put("radius", radius);
+        map.put("interval", interval);
+        map.put("suction_interval", interval);
         map.put("owner", ownerName);
         map.put("cost", cost);
         map.put("max_distance", maxDistance);
         map.put("items_transferred", String.valueOf(hopper.getItemsTransferred()));
-        map.put("hologram_status", hopper.isHologramEnabled() ? "Activé" : "Désactivé");
+        map.put("hologram_status", hopper.isHologramEnabled() ? "<green>Activé</green>" : "<red>Désactivé</red>");
         map.put("teleport_status", hopper.isTeleportEnabled() ? "Activé" : "Désactivé");
 
         return map;

@@ -1,12 +1,16 @@
 package fr.danakube.danahoppers.gui;
 
+import fr.danakube.danahoppers.DanaHoppersPlugin;
 import fr.danakube.danahoppers.config.ConfigManager;
 import fr.danakube.danahoppers.config.HopperTierConfig;
 import fr.danakube.danahoppers.config.HopperTypeConfig;
 import fr.danakube.danahoppers.listener.PlayerInteractListener;
+import fr.danakube.danahoppers.manager.HologramManager;
 import fr.danakube.danahoppers.manager.HopperManager;
 import fr.danakube.danahoppers.model.CustomHopper;
 import fr.danakube.danahoppers.util.PDCUtil;
+import net.milkbowl.vault.economy.Economy;
+
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.TileState;
@@ -26,20 +30,22 @@ public class HopperMainMenu {
     private final InventoryBuilder inventoryBuilder;
     private final HopperManager hopperManager;
     private final ConfigManager configManager;
+    private final HologramManager hologramManager;
     private final Plugin plugin;
 
     public HopperMainMenu(InventoryBuilder inventoryBuilder, HopperManager hopperManager,
-                          ConfigManager configManager, Plugin plugin) {
+                          ConfigManager configManager, HologramManager hologramManager, Plugin plugin) {
         this.inventoryBuilder = Objects.requireNonNull(inventoryBuilder, "inventoryBuilder cannot be null");
         this.hopperManager = Objects.requireNonNull(hopperManager, "hopperManager cannot be null");
         this.configManager = Objects.requireNonNull(configManager, "configManager cannot be null");
+        this.hologramManager = Objects.requireNonNull(hologramManager, "hologramManager cannot be null");
         this.plugin = Objects.requireNonNull(plugin, "plugin cannot be null");
     }
 
     /**
      * Ouvre le menu principal pour le joueur donné.
      */
-    public void open(Player player, CustomHopper hopper) {
+     public void open(Player player, CustomHopper hopper) {
         Inventory inv = inventoryBuilder.buildMainMenu(hopper);
         player.openInventory(inv);
         player.playSound(player.getLocation(), Sound.BLOCK_CHEST_OPEN, 0.8f, 1.0f);
@@ -68,6 +74,9 @@ public class HopperMainMenu {
             case 15 -> { // Bouton Liaison (Link)
                 handleLinkMode(player, hopper);
             }
+            case 16 -> { // Bouton Statistiques & Hologramme Toggle
+                handleHologramToggle(player, hopper);
+            }
             default -> {
                 // Aucun comportement particulier sur les autres slots
             }
@@ -89,6 +98,24 @@ public class HopperMainMenu {
         }
 
         int nextTierNum = currentTierConfig.nextTier();
+        double cost = currentTierConfig.upgradeCostMoney();
+
+        // Vérification de l'économie si activée
+        boolean useVault = configManager.getConfig().getBoolean("integrations.vault", true);
+        if (useVault && cost > 0.0) {
+            if (plugin instanceof DanaHoppersPlugin mainPlugin) {
+                Economy eco = mainPlugin.getEconomy();
+                if (eco != null) {
+                    if (!eco.has(player, cost)) {
+                        player.sendMessage(configManager.getMessage("insufficient_funds", Map.of("cost", String.format("%.0f", cost))));
+                        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
+                        return;
+                    }
+                    // Retirer l'argent
+                    eco.withdrawPlayer(player, cost);
+                }
+            }
+        }
 
         // Appliquer l'amélioration
         hopper.setTier(nextTierNum);
@@ -103,7 +130,7 @@ public class HopperMainMenu {
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.8f, 1.2f);
         player.sendMessage(configManager.getMessage("hopper_upgraded", Map.of(
                 "tier", String.valueOf(nextTierNum),
-                "cost", String.format("%.0f", currentTierConfig.upgradeCostMoney())
+                "cost", String.format("%.0f", cost)
         )));
 
         // Rafraîchir l'inventaire
@@ -127,5 +154,30 @@ public class HopperMainMenu {
         player.closeInventory();
         player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.8f, 1.2f);
         player.sendMessage(configManager.getMessage("link_mode_enabled", Map.of("distance", String.valueOf(maxDist))));
+    }
+
+    private void handleHologramToggle(Player player, CustomHopper hopper) {
+        boolean newState = !hopper.isHologramEnabled();
+        hopper.setHologramEnabled(newState);
+
+        // Enregistrer dans le bloc (PDC)
+        Block block = hopper.getLocation().getBlock();
+        if (block.getState() instanceof TileState tileState) {
+            PDCUtil.saveToPDC(tileState, hopper, plugin);
+        }
+        // Enregistrer dans le manager (DB/Cache)
+        hopperManager.registerHopper(hopper);
+
+        // Mettre à jour visuellement l'hologramme
+        if (newState) {
+            hologramManager.createHologram(hopper);
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 0.8f, 1.5f);
+        } else {
+            hologramManager.removeHologram(hopper);
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.8f, 0.8f);
+        }
+
+        // Rafraîchir le menu pour le joueur
+        open(player, hopper);
     }
 }
