@@ -8,6 +8,7 @@ import fr.danakube.danahoppers.gui.InventoryBuilder;
 import fr.danakube.danahoppers.listener.HopperBlockListener;
 import fr.danakube.danahoppers.listener.InventoryListener;
 import fr.danakube.danahoppers.listener.PlayerInteractListener;
+import fr.danakube.danahoppers.listener.PlayerSneakListener;
 import fr.danakube.danahoppers.manager.HologramManager;
 import fr.danakube.danahoppers.manager.HopperManager;
 import fr.danakube.danahoppers.manager.SuctionManager;
@@ -83,6 +84,7 @@ public final class DanaHoppersPlugin extends JavaPlugin {
         pm.registerEvents(new HopperBlockListener(this, hopperManager, configManager, hologramManager), this);
         pm.registerEvents(new PlayerInteractListener(this, hopperManager, configManager, mainMenu), this);
         pm.registerEvents(new InventoryListener(mainMenu, filterMenu), this);
+        pm.registerEvents(new PlayerSneakListener(hopperManager, configManager), this);
 
         // 6. Commandes
         DanaHopperCommand mainCmd = new DanaHopperCommand(this, configManager, hopperManager);

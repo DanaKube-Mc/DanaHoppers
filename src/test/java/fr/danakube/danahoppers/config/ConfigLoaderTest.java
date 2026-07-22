@@ -116,12 +116,18 @@ class ConfigLoaderTest {
         assertEquals(3, elargiTier1.radiusY());
         assertEquals(3, elargiTier1.radiusZ());
         assertEquals(5.0, elargiTier1.intervalSeconds());
+        assertEquals(25, elargiTier1.maxLinkingDistance());
         assertEquals(1000.0, elargiTier1.upgradeCostMoney());
         assertEquals(2, elargiTier1.nextTier());
+
+        HopperTierConfig elargiTier2 = elargi.getTier(2);
+        assertNotNull(elargiTier2);
+        assertEquals(50, elargiTier2.maxLinkingDistance());
 
         HopperTierConfig elargiTier3 = elargi.getTier(3);
         assertNotNull(elargiTier3);
         assertEquals(7, elargiTier3.radiusX());
+        assertEquals(100, elargiTier3.maxLinkingDistance());
         assertEquals(0.0, elargiTier3.upgradeCostMoney());
 
         // Collecteur Zone
@@ -130,17 +136,35 @@ class ConfigLoaderTest {
         HopperTierConfig zoneTier1 = zone.getTier(1);
         assertNotNull(zoneTier1);
         assertEquals("CHUNK", zoneTier1.suctionType());
+        assertEquals(25, zoneTier1.maxLinkingDistance());
 
-        // SauteLien
+        HopperTierConfig zoneTier2 = zone.getTier(2);
+        assertNotNull(zoneTier2);
+        assertEquals(50, zoneTier2.maxLinkingDistance());
+
+        HopperTierConfig zoneTier3 = zone.getTier(3);
+        assertNotNull(zoneTier3);
+        assertEquals(100, zoneTier3.maxLinkingDistance());
+
+        // SauteLien (2 tiers, TELEPORTATION)
         HopperTypeConfig link = configManager.getHopperType("sautelien");
         assertNotNull(link);
+        assertEquals(2, link.tiers().size());
+
         HopperTierConfig linkTier1 = link.getTier(1);
         assertNotNull(linkTier1);
-        assertEquals("LINK", linkTier1.suctionType());
-        assertEquals(30, linkTier1.maxLinkingDistance());
+        assertEquals("TELEPORTATION", linkTier1.suctionType());
+        assertEquals(60, linkTier1.maxLinkingDistance());
+        assertEquals(10000.0, linkTier1.upgradeCostMoney());
+        assertEquals("sautelien", linkTier1.nextHopperId());
+        assertEquals(2, linkTier1.nextTier());
 
-        HopperTierConfig linkTier3 = link.getTier(3);
-        assertNotNull(linkTier3);
-        assertEquals(120, linkTier3.maxLinkingDistance());
+        HopperTierConfig linkTier2 = link.getTier(2);
+        assertNotNull(linkTier2);
+        assertEquals("TELEPORTATION", linkTier2.suctionType());
+        assertEquals(150, linkTier2.maxLinkingDistance());
+        assertEquals(0.0, linkTier2.upgradeCostMoney());
+        assertEquals("", linkTier2.nextHopperId());
+        assertEquals(0, linkTier2.nextTier());
     }
 }

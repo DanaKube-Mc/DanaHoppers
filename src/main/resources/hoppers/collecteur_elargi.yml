@@ -14,7 +14,7 @@ tiers:
     radius_y: 3
     radius_z: 3
     interval_seconds: 5.0
-    max_linking_distance: 0
+    max_linking_distance: 25
     upgrade_cost_money: 1000.0
     next_hopper_id: "collecteur_elargi"
     next_tier: 2
@@ -27,7 +27,7 @@ tiers:
     radius_y: 5
     radius_z: 5
     interval_seconds: 3.0
-    max_linking_distance: 0
+    max_linking_distance: 50
     upgrade_cost_money: 2500.0
     next_hopper_id: "collecteur_elargi"
     next_tier: 3
@@ -40,7 +40,7 @@ tiers:
     radius_y: 7
     radius_z: 7
     interval_seconds: 1.0
-    max_linking_distance: 0
+    max_linking_distance: 100
     upgrade_cost_money: 0.0
     next_hopper_id: ""
     next_tier: 0

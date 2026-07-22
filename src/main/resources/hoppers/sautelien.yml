@@ -9,38 +9,25 @@ tiers:
     display_name: "<gradient:#f6d365:#fda085>SauteLien - Niv. 1</gradient>"
     material: "HOPPER"
     custom_model_data: 3001
-    suction_type: "LINK"
-    radius_x: 3
-    radius_y: 3
-    radius_z: 3
-    interval_seconds: 4.0
-    max_linking_distance: 30
-    upgrade_cost_money: 3000.0
+    suction_type: "TELEPORTATION"
+    radius_x: 0
+    radius_y: 0
+    radius_z: 0
+    interval_seconds: 1.0
+    max_linking_distance: 60
+    upgrade_cost_money: 10000.0
     next_hopper_id: "sautelien"
     next_tier: 2
   2:
     display_name: "<gradient:#f6d365:#fda085>SauteLien - Niv. 2</gradient>"
     material: "HOPPER"
     custom_model_data: 3002
-    suction_type: "LINK"
-    radius_x: 5
-    radius_y: 5
-    radius_z: 5
-    interval_seconds: 2.0
-    max_linking_distance: 60
-    upgrade_cost_money: 7500.0
-    next_hopper_id: "sautelien"
-    next_tier: 3
-  3:
-    display_name: "<gradient:#f6d365:#fda085>SauteLien - Niv. 3</gradient>"
-    material: "HOPPER"
-    custom_model_data: 3003
-    suction_type: "LINK"
-    radius_x: 7
-    radius_y: 7
-    radius_z: 7
+    suction_type: "TELEPORTATION"
+    radius_x: 0
+    radius_y: 0
+    radius_z: 0
     interval_seconds: 1.0
-    max_linking_distance: 120
+    max_linking_distance: 150
     upgrade_cost_money: 0.0
     next_hopper_id: ""
     next_tier: 0

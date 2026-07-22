@@ -94,6 +94,10 @@ public class SuctionManager {
                 continue;
             }
 
+            if ("TELEPORTATION".equalsIgnoreCase(tierConfig.suctionType())) {
+                continue;
+            }
+
             long intervalMs = (long) (tierConfig.intervalSeconds() * 1000.0);
             Long lastTime = lastSuctionTimes.get(hopper.getHopperUuid());
             if (lastTime != null && (now - lastTime) < intervalMs) {

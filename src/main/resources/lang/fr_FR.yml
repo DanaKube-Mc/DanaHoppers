@@ -24,3 +24,4 @@ messages:
   not_island_member: "<red>Vous devez être membre de l'île pour modifier ou casser cet entonnoir.</red>"
   not_on_island: "<red>Vous devez placer cet entonnoir sur votre île.</red>"
   disabled_world: "<red>Les entonnoirs personnalisés sont désactivés dans ce monde.</red>"
+  teleport_success: "<green>Téléportation vers le conteneur lié...</green>"
