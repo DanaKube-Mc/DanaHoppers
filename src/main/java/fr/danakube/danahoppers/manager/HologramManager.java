@@ -15,7 +15,6 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,13 +24,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class HologramManager {
 
-    private final Plugin plugin;
     private final ConfigManager configManager;
     private final ConcurrentHashMap<UUID, TextDisplay> hologramCache;
     private final NamespacedKey hologramKey;
 
     public HologramManager(Plugin plugin, ConfigManager configManager) {
-        this.plugin = Objects.requireNonNull(plugin, "plugin cannot be null");
         this.configManager = Objects.requireNonNull(configManager, "configManager cannot be null");
         this.hologramCache = new ConcurrentHashMap<>();
         this.hologramKey = new NamespacedKey(plugin, "hopper_hologram_uuid");

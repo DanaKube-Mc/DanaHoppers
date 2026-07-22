@@ -4,7 +4,6 @@ import fr.danakube.danahoppers.config.ConfigManager;
 import fr.danakube.danahoppers.manager.HopperManager;
 import fr.danakube.danahoppers.model.CustomHopper;
 import fr.danakube.danahoppers.model.FilterMode;
-import fr.danakube.danahoppers.model.HopperFilter;
 import fr.danakube.danahoppers.util.PDCUtil;
 import org.bukkit.Material;
 import org.bukkit.Sound;

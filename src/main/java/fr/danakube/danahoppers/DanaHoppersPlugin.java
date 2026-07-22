@@ -68,7 +68,7 @@ public final class DanaHoppersPlugin extends JavaPlugin {
             cmd.setTabCompleter(mainCmd);
         }
 
-        getLogger().info("DanaHoppers v" + getDescription().getVersion() + " (Paper 1.21) initialisé avec succès !");
+        getLogger().info("DanaHoppers v" + getPluginMeta().getVersion() + " (Paper 1.21) initialisé avec succès !");
     }
 
     @Override
