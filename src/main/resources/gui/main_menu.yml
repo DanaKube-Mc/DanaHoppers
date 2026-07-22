@@ -42,6 +42,7 @@ items:
     lore:
       - "<gray>Associez cet entonnoir à un coffre distant.</gray>"
       - "<gray>Distance max: <aqua>%max_distance% blocs</aqua></gray>"
+      - "<gray>État: %link_status%</gray>"
       - ""
       - "<yellow>► Clic pour passer en mode liaison</yellow>"
   16:

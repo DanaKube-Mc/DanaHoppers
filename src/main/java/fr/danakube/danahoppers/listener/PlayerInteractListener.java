@@ -95,6 +95,16 @@ public class PlayerInteractListener implements Listener {
             Location hopperLoc = hopper.getLocation();
             Location targetLoc = block.getLocation();
 
+            // Interdire de lier le hopper à lui-même
+            if (hopperLoc.getWorld().equals(targetLoc.getWorld()) &&
+                hopperLoc.getBlockX() == targetLoc.getBlockX() &&
+                hopperLoc.getBlockY() == targetLoc.getBlockY() &&
+                hopperLoc.getBlockZ() == targetLoc.getBlockZ()) {
+                player.sendMessage(configManager.getRawMessage("link_failed_self"));
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
+                return;
+            }
+
             // Vérifier que le bloc cible est un conteneur valide (coffre, double coffre, entonnoir, etc.)
             BlockState state = block.getState();
             if (!(state instanceof InventoryHolder)) {
@@ -136,6 +146,11 @@ public class PlayerInteractListener implements Listener {
         // 2. Interaction normale avec un CustomHopper -> Ouverture du GUI principal
         CustomHopper hopper = hopperManager.getHopper(block.getLocation());
         if (hopper != null) {
+            // Si le joueur s'accroupit (sneak) et fait un clic droit, on le laisse accéder à l'inventaire physique du hopper
+            if (player.isSneaking()) {
+                return;
+            }
+
             event.setCancelled(true);
 
             // Vérification du monde désactivé

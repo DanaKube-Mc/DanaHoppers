@@ -1,18 +1,22 @@
 package fr.danakube.danahoppers.listener;
 
+import fr.danakube.danahoppers.DanaHoppersPlugin;
 import fr.danakube.danahoppers.config.ConfigManager;
 import fr.danakube.danahoppers.config.HopperTierConfig;
 import fr.danakube.danahoppers.config.HopperTypeConfig;
 import fr.danakube.danahoppers.manager.HopperManager;
 import fr.danakube.danahoppers.model.CustomHopper;
+import fr.danakube.danahoppers.util.PDCUtil;
 
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.TileState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.inventory.InventoryHolder;
 
 import java.util.Objects;
 
@@ -67,6 +71,24 @@ public class PlayerSneakListener implements Listener {
         Location targetLoc = hopper.getLinkedLocation();
         if (targetLoc == null) {
             return;
+        }
+
+        if (targetLoc.isWorldLoaded()) {
+            Block targetBlock = targetLoc.getBlock();
+            if (!(targetBlock.getState() instanceof InventoryHolder)) {
+                hopper.setLinkedLocation(null);
+                
+                Location hopperLoc = hopper.getLocation();
+                if (hopperLoc != null && hopperLoc.isWorldLoaded()) {
+                    Block hopperBlock = hopperLoc.getBlock();
+                    if (hopperBlock.getState() instanceof TileState tileState) {
+                        PDCUtil.saveToPDC(tileState, hopper, DanaHoppersPlugin.getPlugin(DanaHoppersPlugin.class));
+                    }
+                }
+                
+                hopperManager.registerHopper(hopper);
+                return;
+            }
         }
 
         Location destination = targetLoc.clone().add(0.5, 1.0, 0.5);

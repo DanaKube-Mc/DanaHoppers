@@ -19,6 +19,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 public final class DanaHoppersPlugin extends JavaPlugin {
 
@@ -29,6 +30,7 @@ public final class DanaHoppersPlugin extends JavaPlugin {
     private HologramManager hologramManager;
     private SuctionManager suctionManager;
     private Economy economy;
+    private BukkitTask autosaveTask;
 
     private boolean setupEconomy() {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
@@ -94,11 +96,25 @@ public final class DanaHoppersPlugin extends JavaPlugin {
             cmd.setTabCompleter(mainCmd);
         }
 
+        // 7. Sauvegarde automatique
+        int autosaveMinutes = configManager.getConfig().getInt("options.database-autosave-minutes", 5);
+        if (autosaveMinutes > 0) {
+            long ticks = autosaveMinutes * 60L * 20L;
+            this.autosaveTask = getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
+                getLogger().info("[Autosave] Sauvegarde périodique des hoppers en cours...");
+                hopperManager.saveAllAsync().thenAccept(v -> getLogger().info("[Autosave] Sauvegarde terminée avec succès."));
+            }, ticks, ticks);
+        }
+
         getLogger().info("DanaHoppers v" + getPluginMeta().getVersion() + " (Paper 1.21) initialisé avec succès !");
     }
 
     @Override
     public void onDisable() {
+        if (autosaveTask != null && !autosaveTask.isCancelled()) {
+            autosaveTask.cancel();
+        }
+
         if (suctionManager != null) {
             suctionManager.stop();
         }

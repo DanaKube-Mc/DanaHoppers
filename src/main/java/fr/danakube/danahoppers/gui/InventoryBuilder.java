@@ -218,6 +218,10 @@ public class InventoryBuilder {
 
         String maxDistance = tierConfig != null ? String.valueOf(tierConfig.maxLinkingDistance()) : "0";
         String interval = tierConfig != null ? String.valueOf(tierConfig.intervalSeconds()) : "5.0";
+        String statusEnabled = configManager.getLangConfig() != null ? configManager.getLangConfig().getString("messages.status_enabled", "<green>Activé</green>") : "<green>Activé</green>";
+        String statusDisabled = configManager.getLangConfig() != null ? configManager.getLangConfig().getString("messages.status_disabled", "<red>Désactivé</red>") : "<red>Désactivé</red>";
+        String statusConnected = configManager.getLangConfig() != null ? configManager.getLangConfig().getString("messages.status_connected", "<green>Connecté</green>") : "<green>Connecté</green>";
+        String statusDisconnected = configManager.getLangConfig() != null ? configManager.getLangConfig().getString("messages.status_disconnected", "<red>Déconnecté</red>") : "<red>Déconnecté</red>";
 
         map.put("type_name", typeName);
         map.put("type", typeName);
@@ -231,8 +235,9 @@ public class InventoryBuilder {
         map.put("cost", cost);
         map.put("max_distance", maxDistance);
         map.put("items_transferred", String.valueOf(hopper.getItemsTransferred()));
-        map.put("hologram_status", hopper.isHologramEnabled() ? "<green>Activé</green>" : "<red>Désactivé</red>");
-        map.put("teleport_status", hopper.isTeleportEnabled() ? "Activé" : "Désactivé");
+        map.put("hologram_status", hopper.isHologramEnabled() ? statusEnabled : statusDisabled);
+        map.put("link_status", hopper.getLinkedLocation() != null ? statusConnected : statusDisconnected);
+        map.put("teleport_status", hopper.isTeleportEnabled() ? statusEnabled : statusDisabled);
 
         return map;
     }

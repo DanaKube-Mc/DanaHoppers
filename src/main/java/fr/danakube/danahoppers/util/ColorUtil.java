@@ -1,6 +1,7 @@
 package fr.danakube.danahoppers.util;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public final class ColorUtil {
             return Component.empty();
         }
         if (placeholders == null || placeholders.isEmpty()) {
-            return MINI_MESSAGE.deserialize(text);
+            return MINI_MESSAGE.deserialize(text).decoration(TextDecoration.ITALIC, false);
         }
 
         String processedText = text;
@@ -50,7 +51,7 @@ public final class ColorUtil {
             processedText = processedText.replace("%" + entry.getKey() + "%", val);
         }
 
-        return MINI_MESSAGE.deserialize(processedText);
+        return MINI_MESSAGE.deserialize(processedText).decoration(TextDecoration.ITALIC, false);
     }
 
     /**

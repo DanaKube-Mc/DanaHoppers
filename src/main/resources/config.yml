@@ -48,6 +48,10 @@ options:
   enable-sounds: true
   check-update: true
   suction-task-period-ticks: 20
+  # Délai de sauvegarde automatique en base de données (en minutes)
+  # Met à jour les statistiques et l'état des hoppers périodiquement.
+  # Définir à -1 pour désactiver la sauvegarde périodique (sauvegarde uniquement à la fermeture).
+  database-autosave-minutes: 5
 
 # Intégrations avec d'autres plugins
 integrations:
