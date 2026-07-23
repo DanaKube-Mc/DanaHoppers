@@ -22,7 +22,7 @@ class HopperFilterTest {
     @Test
     @DisplayName("Initialisation par défaut du filtre")
     void testDefaultInitialization() {
-        assertEquals(FilterMode.WHITELIST, filter.getMode());
+        assertEquals(FilterMode.BLACKLIST, filter.getMode());
         assertTrue(filter.getMaterials().isEmpty());
     }
 

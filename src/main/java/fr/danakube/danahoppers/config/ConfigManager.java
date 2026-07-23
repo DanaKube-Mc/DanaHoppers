@@ -235,6 +235,9 @@ public class ConfigManager {
         if (raw == null) {
             return ColorUtil.parse(getPrefix() + "<red>Message introuvable: " + key + "</red>");
         }
+        if (raw.trim().isEmpty()) {
+            return Component.empty();
+        }
         return ColorUtil.parseWithPrefix(getPrefix(), raw, placeholders);
     }
 
@@ -246,6 +249,9 @@ public class ConfigManager {
         String raw = langConfig != null ? langConfig.getString("messages." + key) : null;
         if (raw == null) {
             return ColorUtil.parse("<red>Message introuvable: " + key + "</red>");
+        }
+        if (raw.trim().isEmpty()) {
+            return Component.empty();
         }
         return ColorUtil.parse(raw, placeholders);
     }

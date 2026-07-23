@@ -18,7 +18,7 @@ public class HopperFilter {
     private final List<Material> materials;
 
     public HopperFilter() {
-        this(FilterMode.WHITELIST, new ArrayList<>());
+        this(FilterMode.BLACKLIST, new ArrayList<>());
     }
 
     public HopperFilter(FilterMode mode) {
@@ -26,7 +26,7 @@ public class HopperFilter {
     }
 
     public HopperFilter(FilterMode mode, List<Material> materials) {
-        this.mode = Objects.requireNonNullElse(mode, FilterMode.WHITELIST);
+        this.mode = Objects.requireNonNullElse(mode, FilterMode.BLACKLIST);
         this.materials = new CopyOnWriteArrayList<>();
         if (materials != null) {
             for (Material mat : materials) {
