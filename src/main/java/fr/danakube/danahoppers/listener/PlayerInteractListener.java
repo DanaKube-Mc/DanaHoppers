@@ -100,7 +100,7 @@ public class PlayerInteractListener implements Listener {
                 hopperLoc.getBlockX() == targetLoc.getBlockX() &&
                 hopperLoc.getBlockY() == targetLoc.getBlockY() &&
                 hopperLoc.getBlockZ() == targetLoc.getBlockZ()) {
-                player.sendMessage(configManager.getRawMessage("link_failed_self"));
+                configManager.sendRawMessage(player, "link_failed_self");
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
                 return;
             }
@@ -108,7 +108,7 @@ public class PlayerInteractListener implements Listener {
             // Vérifier que le bloc cible est un conteneur valide (coffre, double coffre, entonnoir, etc.)
             BlockState state = block.getState();
             if (!(state instanceof InventoryHolder)) {
-                player.sendMessage(configManager.getRawMessage("link_failed_invalid"));
+                configManager.sendRawMessage(player, "link_failed_invalid");
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
                 return;
             }
@@ -119,7 +119,7 @@ public class PlayerInteractListener implements Listener {
             int maxDistance = tierConfig != null ? tierConfig.maxLinkingDistance() : 0;
 
             if (!hopperLoc.getWorld().equals(targetLoc.getWorld()) || hopperLoc.distance(targetLoc) > maxDistance) {
-                player.sendMessage(configManager.getMessage("link_failed_distance", Map.of("distance", String.valueOf(maxDistance))));
+                configManager.sendMessage(player, "link_failed_distance", Map.of("distance", String.valueOf(maxDistance)));
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
                 return;
             }
@@ -135,11 +135,11 @@ public class PlayerInteractListener implements Listener {
             hopperManager.registerHopper(hopper);
 
             player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.8f, 1.2f);
-            player.sendMessage(configManager.getMessage("link_success", Map.of(
+            configManager.sendMessage(player, "link_success", Map.of(
                     "x", String.valueOf(targetLoc.getBlockX()),
                     "y", String.valueOf(targetLoc.getBlockY()),
                     "z", String.valueOf(targetLoc.getBlockZ())
-            )));
+            ));
             return;
         }
 
@@ -156,7 +156,7 @@ public class PlayerInteractListener implements Listener {
             // Vérification du monde désactivé
             List<String> disabledWorlds = configManager.getConfig().getStringList("disabled-worlds");
             if (disabledWorlds != null && disabledWorlds.contains(block.getWorld().getName())) {
-                player.sendMessage(configManager.getRawMessage("disabled_world"));
+                configManager.sendRawMessage(player, "disabled_world");
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
                 return;
             }
@@ -166,7 +166,7 @@ public class PlayerInteractListener implements Listener {
             if (useSkyblock && SkyblockUtil.isSkyblockActive()) {
                 Island island = SkyblockUtil.getIslandAt(block.getLocation());
                 if (island != null && !SkyblockUtil.isIslandMember(player, island)) {
-                    player.sendMessage(configManager.getRawMessage("not_island_member"));
+                    configManager.sendRawMessage(player, "not_island_member");
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
                     return;
                 }

@@ -82,6 +82,25 @@ class ConfigLoaderTest {
     }
 
     @Test
+    @DisplayName("ConfigManager - Traitement des messages vides, nuls et désactivés")
+    void testEmptyAndDisabledMessages() {
+        configManager.getLangConfig().set("messages.test_empty", "");
+        configManager.getLangConfig().set("messages.test_disabled", "none");
+
+        // 1. Message vide "" -> Component.empty()
+        Component msgEmpty = configManager.getMessage("test_empty");
+        assertEquals(Component.empty(), msgEmpty);
+
+        // 2. Message "none" / "disabled" -> Component.empty()
+        Component msgDisabled = configManager.getMessage("test_disabled");
+        assertEquals(Component.empty(), msgDisabled);
+
+        // 3. Clé introuvable -> Message introuvable
+        Component msgMissing = configManager.getMessage("non_existent_key_xyz");
+        assertTrue(PlainTextComponentSerializer.plainText().serialize(msgMissing).contains("Message introuvable: non_existent_key_xyz"));
+    }
+
+    @Test
     @DisplayName("ConfigManager - Chargement des GUIs main_menu.yml et filter_menu.yml")
     void testGuiConfigsLoading() {
         assertNotNull(configManager.getMainMenuConfig());

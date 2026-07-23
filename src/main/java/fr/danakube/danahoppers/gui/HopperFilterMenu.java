@@ -78,7 +78,7 @@ public class HopperFilterMenu {
             saveHopperData(hopper);
 
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.8f, 1.2f);
-            player.sendMessage(configManager.getMessage("filter_mode_changed", Map.of("mode", newMode.name())));
+            configManager.sendMessage(player, "filter_mode_changed", Map.of("mode", newMode.name()));
 
             // Ré-ouvrir le menu mis à jour
             open(player, hopper);
@@ -89,7 +89,7 @@ public class HopperFilterMenu {
             saveHopperData(hopper);
 
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 0.8f, 1.0f);
-            player.sendMessage(configManager.getMessage("filter_cleared"));
+            configManager.sendMessage(player, "filter_cleared");
 
             // Ré-ouvrir le menu mis à jour
             open(player, hopper);

@@ -59,7 +59,7 @@ public class DanaHopperCommand implements CommandExecutor, TabCompleter {
 
     private void handleGive(CommandSender sender, String[] args) {
         if (!sender.hasPermission("danahoppers.admin.give") && !sender.hasPermission("danahoppers.admin")) {
-            sender.sendMessage(configManager.getRawMessage("no_permission"));
+            configManager.sendRawMessage(sender, "no_permission");
             return;
         }
 
@@ -78,7 +78,7 @@ public class DanaHopperCommand implements CommandExecutor, TabCompleter {
         String typeId = args[2].toLowerCase();
         HopperTypeConfig typeConfig = configManager.getHopperType(typeId);
         if (typeConfig == null) {
-            sender.sendMessage(configManager.getMessage("unknown_hopper_type", Map.of("type", typeId)));
+            configManager.sendMessage(sender, "unknown_hopper_type", Map.of("type", typeId));
             return;
         }
 
@@ -100,29 +100,29 @@ public class DanaHopperCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        target.sendMessage(configManager.getMessage("hopper_given", Map.of("type", typeConfig.name(), "tier", String.valueOf(tier))));
+        configManager.sendMessage(target, "hopper_given", Map.of("type", typeConfig.name(), "tier", String.valueOf(tier)));
         if (!sender.equals(target)) {
-            sender.sendMessage(configManager.getMessage("hopper_given_target", Map.of(
+            configManager.sendMessage(sender, "hopper_given_target", Map.of(
                     "type", typeConfig.name(),
                     "tier", String.valueOf(tier),
                     "player", target.getName()
-            )));
+            ));
         }
     }
 
     private void handleReload(CommandSender sender) {
         if (!sender.hasPermission("danahoppers.admin.reload") && !sender.hasPermission("danahoppers.admin")) {
-            sender.sendMessage(configManager.getRawMessage("no_permission"));
+            configManager.sendRawMessage(sender, "no_permission");
             return;
         }
 
         configManager.loadAll();
-        sender.sendMessage(configManager.getRawMessage("reload_success"));
+        configManager.sendRawMessage(sender, "reload_success");
     }
 
     private void handleInfo(CommandSender sender) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(configManager.getRawMessage("player_only"));
+            configManager.sendRawMessage(sender, "player_only");
             return;
         }
 

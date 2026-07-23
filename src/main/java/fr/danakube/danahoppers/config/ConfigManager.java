@@ -1,6 +1,7 @@
 package fr.danakube.danahoppers.config;
 
 import fr.danakube.danahoppers.util.ColorUtil;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -231,11 +232,12 @@ public class ConfigManager {
     }
 
     public Component getMessage(String key, Map<String, String> placeholders) {
-        String raw = langConfig != null ? langConfig.getString("messages." + key) : null;
-        if (raw == null) {
+        String keyPath = "messages." + key;
+        if (langConfig == null || !langConfig.contains(keyPath)) {
             return ColorUtil.parse(getPrefix() + "<red>Message introuvable: " + key + "</red>");
         }
-        if (raw.trim().isEmpty()) {
+        String raw = langConfig.getString(keyPath);
+        if (raw == null || raw.trim().isEmpty() || raw.equalsIgnoreCase("none") || raw.equalsIgnoreCase("disabled")) {
             return Component.empty();
         }
         return ColorUtil.parseWithPrefix(getPrefix(), raw, placeholders);
@@ -246,13 +248,38 @@ public class ConfigManager {
     }
 
     public Component getRawMessage(String key, Map<String, String> placeholders) {
-        String raw = langConfig != null ? langConfig.getString("messages." + key) : null;
-        if (raw == null) {
+        String keyPath = "messages." + key;
+        if (langConfig == null || !langConfig.contains(keyPath)) {
             return ColorUtil.parse("<red>Message introuvable: " + key + "</red>");
         }
-        if (raw.trim().isEmpty()) {
+        String raw = langConfig.getString(keyPath);
+        if (raw == null || raw.trim().isEmpty() || raw.equalsIgnoreCase("none") || raw.equalsIgnoreCase("disabled")) {
             return Component.empty();
         }
         return ColorUtil.parse(raw, placeholders);
+    }
+
+    public void sendMessage(Audience sender, String key) {
+        sendMessage(sender, key, Collections.emptyMap());
+    }
+
+    public void sendMessage(Audience sender, String key, Map<String, String> placeholders) {
+        if (sender == null) return;
+        Component component = getMessage(key, placeholders);
+        if (component != null && !Component.empty().equals(component)) {
+            sender.sendMessage(component);
+        }
+    }
+
+    public void sendRawMessage(Audience sender, String key) {
+        sendRawMessage(sender, key, Collections.emptyMap());
+    }
+
+    public void sendRawMessage(Audience sender, String key, Map<String, String> placeholders) {
+        if (sender == null) return;
+        Component component = getRawMessage(key, placeholders);
+        if (component != null && !Component.empty().equals(component)) {
+            sender.sendMessage(component);
+        }
     }
 }
