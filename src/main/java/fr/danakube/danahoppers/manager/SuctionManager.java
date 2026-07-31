@@ -29,6 +29,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import fr.danakube.danahoppers.util.HopperFlushUtil;
+import fr.danakube.danahoppers.util.SmartContainerUtil;
+
 /**
  * Tâche périodique gérant l'aspiration des objets au sol par les CustomHoppers.
  */
@@ -84,6 +87,11 @@ public class SuctionManager {
             // Vérifier que le chunk du hopper est chargé pour éviter les lag spikes
             if (!loc.getChunk().isLoaded()) {
                 continue;
+            }
+
+            // Exécuter le vidage automatique (flush) si le hopper est lié à un conteneur
+            if (hopper.getLinkedLocation() != null) {
+                HopperFlushUtil.flushInternalInventory(hopper);
             }
 
             HopperTypeConfig typeConfig = configManager.getHopperType(hopper.getTypeId());
@@ -151,25 +159,25 @@ public class SuctionManager {
                 continue;
             }
 
-            // Transfert vers les inventaires cibles (page par page si plein)
+            // Transfert vers les inventaires cibles via SmartContainerUtil (page par page si plein)
             int originalAmount = stack.getAmount();
             ItemStack currentStack = stack;
-            HashMap<Integer, ItemStack> remaining = new HashMap<>();
+            ItemStack leftoverStack = null;
 
             for (Inventory targetInventory : targetInventories) {
-                remaining = targetInventory.addItem(currentStack);
-                if (remaining.isEmpty()) {
+                leftoverStack = SmartContainerUtil.insertItem(targetInventory, currentStack);
+                if (leftoverStack == null || leftoverStack.getType().isAir() || leftoverStack.getAmount() <= 0) {
+                    leftoverStack = null;
                     break; // Complètement inséré dans cet inventaire/page
                 }
                 // Si la page actuelle est pleine, on continue le surplus sur la page suivante
-                currentStack = remaining.get(0);
+                currentStack = leftoverStack;
             }
 
             int transferredAmount = originalAmount;
-            if (!remaining.isEmpty()) {
-                ItemStack leftover = remaining.get(0);
-                transferredAmount = originalAmount - leftover.getAmount();
-                itemEntity.setItemStack(leftover);
+            if (leftoverStack != null && leftoverStack.getAmount() > 0) {
+                transferredAmount = originalAmount - leftoverStack.getAmount();
+                itemEntity.setItemStack(leftoverStack);
             } else {
                 itemEntity.remove();
             }
@@ -180,7 +188,7 @@ public class SuctionManager {
             }
 
             // Si tous les inventaires/pages sont pleins, on arrête l'aspiration
-            if (!remaining.isEmpty()) {
+            if (leftoverStack != null && leftoverStack.getAmount() > 0) {
                 break;
             }
         }

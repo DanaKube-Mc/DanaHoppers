@@ -16,7 +16,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -79,28 +78,45 @@ public class HopperFilterMenu {
             saveHopperData(hopper);
 
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.8f, 1.2f);
-            player.sendMessage(configManager.getMessage("filter_mode_changed", Map.of("mode", newMode.name())));
+            configManager.sendMessage(player, "filter_mode_changed", Map.of("mode", newMode.name()));
 
             // Ré-ouvrir le menu mis à jour
             open(player, hopper);
 
         } else if (rawSlot == clearSlot) {
             event.setCancelled(true);
-            // Vider le filtre et restituer les items actuellement placés dans les filter slots au joueur
-            restituteAndClearFilterSlots(inv, filterSlots, player);
-
             hopper.getFilter().clearMaterials();
             saveHopperData(hopper);
 
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 0.8f, 1.0f);
-            player.sendMessage(configManager.getMessage("filter_cleared"));
+            configManager.sendMessage(player, "filter_cleared");
 
             // Ré-ouvrir le menu mis à jour
             open(player, hopper);
 
         } else if (filterSlots.contains(rawSlot)) {
-            // Emplacement de filtre : autoriser l'interaction pour que le joueur place/retire des objets physiques
-            // Le clic est autorisé pour modification directe du slot.
+            event.setCancelled(true);
+
+            ItemStack cursorItem = event.getCursor();
+            ItemStack currentItem = event.getCurrentItem();
+
+            if (cursorItem != null && cursorItem.getType() != Material.AIR) {
+                // Le joueur clique avec un objet en main sur un slot : ajouter le matériau au filtre
+                Material newMat = cursorItem.getType();
+                if (!hopper.getFilter().getMaterials().contains(newMat)) {
+                    hopper.getFilter().addMaterial(newMat);
+                    saveHopperData(hopper);
+                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.2f);
+                    open(player, hopper);
+                }
+            } else if (currentItem != null && currentItem.getType() != Material.AIR) {
+                // Le joueur clique sur un slot contenant un matériau (sans objet en main) : le retirer du filtre
+                Material removeMat = currentItem.getType();
+                hopper.getFilter().removeMaterial(removeMat);
+                saveHopperData(hopper);
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.8f, 0.8f);
+                open(player, hopper);
+            }
         } else {
             // Autres emplacements de fond (vitres de décoration) : interdire le clic
             event.setCancelled(true);
@@ -109,53 +125,10 @@ public class HopperFilterMenu {
 
     /**
      * Intercepte la fermeture de l'inventaire du filtre (InventoryCloseEvent) :
-     * 1. Lit les types d'objets placés dans les slots de filtrage.
-     * 2. Met à jour la liste des matériaux dans le HopperFilter.
-     * 3. Restitue immédiatement l'intégralité des objets physiques au joueur (dans l'inventaire ou au sol si plein).
+     * Sauvegarde uniquement les données du hopper.
      */
     public void handleClose(InventoryCloseEvent event, Player player, CustomHopper hopper) {
-        Inventory inv = event.getInventory();
-        List<Integer> filterSlots = InventoryBuilder.getFilterSlots(configManager.getFilterMenuConfig());
-
-        List<Material> extractedMaterials = new ArrayList<>();
-
-        for (int slot : filterSlots) {
-            if (slot >= 0 && slot < inv.getSize()) {
-                ItemStack stack = inv.getItem(slot);
-                if (stack != null && stack.getType() != Material.AIR) {
-                    if (!extractedMaterials.contains(stack.getType())) {
-                        extractedMaterials.add(stack.getType());
-                    }
-                }
-            }
-        }
-
-        // Mettre à jour le filtre
-        hopper.getFilter().clearMaterials();
-        for (Material mat : extractedMaterials) {
-            hopper.getFilter().addMaterial(mat);
-        }
         saveHopperData(hopper);
-
-        // Restituer les objets physiques au joueur et vider l'inventaire GUI
-        restituteAndClearFilterSlots(inv, filterSlots, player);
-    }
-
-    private void restituteAndClearFilterSlots(Inventory inv, List<Integer> filterSlots, Player player) {
-        for (int slot : filterSlots) {
-            if (slot >= 0 && slot < inv.getSize()) {
-                ItemStack stack = inv.getItem(slot);
-                if (stack != null && stack.getType() != Material.AIR) {
-                    inv.setItem(slot, null); // Vider le slot de l'inventaire du GUI
-                    Map<Integer, ItemStack> remaining = player.getInventory().addItem(stack);
-                    if (!remaining.isEmpty()) {
-                        for (ItemStack drop : remaining.values()) {
-                            player.getWorld().dropItemNaturally(player.getLocation(), drop);
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private void saveHopperData(CustomHopper hopper) {

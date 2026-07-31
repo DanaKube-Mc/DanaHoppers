@@ -86,13 +86,13 @@ public class HopperMainMenu {
     private void handleUpgrade(Player player, CustomHopper hopper) {
         HopperTypeConfig typeConfig = configManager.getHopperType(hopper.getTypeId());
         if (typeConfig == null) {
-            player.sendMessage(configManager.getMessage("unknown_hopper_type", Map.of("type", hopper.getTypeId())));
+            configManager.sendMessage(player, "unknown_hopper_type", Map.of("type", hopper.getTypeId()));
             return;
         }
 
         HopperTierConfig currentTierConfig = typeConfig.getTier(hopper.getTier());
         if (currentTierConfig == null || currentTierConfig.nextTier() <= 0) {
-            player.sendMessage(configManager.getMessage("max_tier_reached"));
+            configManager.sendMessage(player, "max_tier_reached");
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
             return;
         }
@@ -107,7 +107,7 @@ public class HopperMainMenu {
                 Economy eco = mainPlugin.getEconomy();
                 if (eco != null) {
                     if (!eco.has(player, cost)) {
-                        player.sendMessage(configManager.getMessage("insufficient_funds", Map.of("cost", String.format("%.0f", cost))));
+                        configManager.sendMessage(player, "insufficient_funds", Map.of("cost", String.format("%.0f", cost)));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
                         return;
                     }
@@ -128,10 +128,10 @@ public class HopperMainMenu {
         hopperManager.registerHopper(hopper);
 
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.8f, 1.2f);
-        player.sendMessage(configManager.getMessage("hopper_upgraded", Map.of(
+        configManager.sendMessage(player, "hopper_upgraded", Map.of(
                 "tier", String.valueOf(nextTierNum),
                 "cost", String.format("%.0f", cost)
-        )));
+        ));
 
         // Rafraîchir l'inventaire
         open(player, hopper);
@@ -143,7 +143,7 @@ public class HopperMainMenu {
         int maxDist = tierConfig != null ? tierConfig.maxLinkingDistance() : 0;
 
         if (maxDist <= 0) {
-            player.sendMessage(configManager.getRawMessage("link_failed_invalid"));
+            configManager.sendRawMessage(player, "link_failed_invalid");
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f);
             return;
         }
@@ -153,7 +153,7 @@ public class HopperMainMenu {
 
         player.closeInventory();
         player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.8f, 1.2f);
-        player.sendMessage(configManager.getMessage("link_mode_enabled", Map.of("distance", String.valueOf(maxDist))));
+        configManager.sendMessage(player, "link_mode_enabled", Map.of("distance", String.valueOf(maxDist)));
     }
 
     private void handleHologramToggle(Player player, CustomHopper hopper) {

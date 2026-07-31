@@ -75,7 +75,7 @@ public class HopperBlockListener implements Listener {
         // 0. Vérification du monde désactivé
         List<String> disabledWorlds = configManager.getConfig().getStringList("disabled-worlds");
         if (disabledWorlds != null && disabledWorlds.contains(blockLoc.getWorld().getName())) {
-            player.sendMessage(configManager.getRawMessage("disabled_world"));
+            configManager.sendRawMessage(player, "disabled_world");
             event.setCancelled(true);
             return;
         }
@@ -87,13 +87,13 @@ public class HopperBlockListener implements Listener {
         if (useSkyblock && SkyblockUtil.isSkyblockActive()) {
             island = SkyblockUtil.getIslandAt(blockLoc);
             if (island == null) {
-                player.sendMessage(configManager.getRawMessage("not_on_island"));
+                configManager.sendRawMessage(player, "not_on_island");
                 event.setCancelled(true);
                 return;
             }
             // Vérifier si membre de l'île
             if (!SkyblockUtil.isIslandMember(player, island)) {
-                player.sendMessage(configManager.getRawMessage("not_island_member"));
+                configManager.sendRawMessage(player, "not_island_member");
                 event.setCancelled(true);
                 return;
             }
@@ -105,7 +105,7 @@ public class HopperBlockListener implements Listener {
             int currentCount = countHoppersPlaced(player.getUniqueId(), island);
 
             if (currentCount >= maxAllowed) {
-                player.sendMessage(configManager.getMessage("hopper_limit_reached", Map.of("limit", String.valueOf(maxAllowed))));
+                configManager.sendMessage(player, "hopper_limit_reached", Map.of("limit", String.valueOf(maxAllowed)));
                 event.setCancelled(true);
                 return;
             }
@@ -153,7 +153,7 @@ public class HopperBlockListener implements Listener {
             hologramManager.createHologram(hopper);
         }
 
-        player.sendMessage(configManager.getMessage("hopper_placed", Map.of("type", typeId)));
+        configManager.sendMessage(player, "hopper_placed", Map.of("type", typeId));
     }
 
     /**
@@ -244,7 +244,7 @@ public class HopperBlockListener implements Listener {
         if (useSkyblock && SkyblockUtil.isSkyblockActive()) {
             Island island = SkyblockUtil.getIslandAt(loc);
             if (island != null && !SkyblockUtil.isIslandMember(player, island)) {
-                player.sendMessage(configManager.getRawMessage("not_island_member"));
+                configManager.sendRawMessage(player, "not_island_member");
                 event.setCancelled(true);
                 return;
             }
@@ -269,7 +269,7 @@ public class HopperBlockListener implements Listener {
         World world = block.getWorld();
         world.dropItemNaturally(loc, customDrop);
 
-        player.sendMessage(configManager.getMessage("hopper_broken", Map.of("type", hopper.getTypeId())));
+        configManager.sendMessage(player, "hopper_broken", Map.of("type", hopper.getTypeId()));
     }
 
     /**

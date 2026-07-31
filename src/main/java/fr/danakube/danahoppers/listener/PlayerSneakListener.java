@@ -96,7 +96,7 @@ public class PlayerSneakListener implements Listener {
         destination.setPitch(playerLoc.getPitch());
 
         player.teleportAsync(destination);
-        player.sendMessage(configManager.getMessage("teleport_success"));
+        configManager.sendMessage(player, "teleport_success");
         player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.8f, 1.0f);
     }
 }
